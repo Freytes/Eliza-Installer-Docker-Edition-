@@ -1,4 +1,4 @@
-# [Eliza](https://github.com/ai16z/eliza) Chatbot Setup Guide
+# [Eliza](https://github.com/ai16z/eliza) Chatbot Docker Setup Guide
 
 This guide provides instructions for installing and running the Eliza chatbot using either Docker or direct installation on a server.
 
