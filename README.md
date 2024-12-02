@@ -1,75 +1,107 @@
 # [Eliza](https://github.com/ai16z/eliza) Chatbot Setup Guide
 
-This guide will walk you through the installation and setup of the Eliza chatbot on a Debian-based WSL (Windows Subsystem for Linux) system or bare metal Debian install.
+This guide provides instructions for installing and running the Eliza chatbot using either Docker or direct installation on a server.
 
 ## Prerequisites
 
-- **WSL (Windows Subsystem for Linux)** capable Windows machine.
-- **Debian** distribution on bare metal.
+- A Linux-based server (Ubuntu/Debian recommended)
+- Git installed
+- Docker (optional, for containerized deployment)
 
-## Installation Steps
-
-1. **Open Command Prompt** and install Debian on WSL by running the following command:
+1. **Install NVM**:
    ```bash
-   wsl --install debian
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+   source ~/.bashrc
+   nvm install v23.3.0
    ```
 
-2. **Once the installation is complete and Debian boots up, become the root user**:
+2. **Install Build Essentials** (Optional):
    ```bash
-   sudo su
+   apt install -y build-essential
    ```
 
-3. **Clone and run the setup**:
+3. **Install PNPM**:
    ```bash
-   cd ~
-   apt install -y git
-   git clone https://github.com/HowieDuhzit/Eliza-Installer.git
-   cd Eliza-Installer
-   chmod +x setup.sh
-   ./setup.sh
+   curl -fsSL https://get.pnpm.io/install.sh | sh -
+   source /root/.bashrc
+   ```
+
+## Docker Installation
+
+1. **Install Docker**:
+   ```bash
+   # Add Docker's official GPG key
+   sudo apt-get update
+   sudo apt-get install ca-certificates curl
+   sudo install -m 0755 -d /etc/apt/keyrings
+   sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+   sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+   # Add Docker repository
+   echo \
+     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+   # Install Docker packages
+   sudo apt-get update
+   sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   ```
+
+2. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/eliza.git
+   cd eliza
+   ```
+
+3. **Configure Environment**:
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Fix Unix Script Issues** (if needed):
+   ```bash
+   apt install dos2unix
+   dos2unix ./scripts/*
+   ```
+
+5. **Run with Docker**:
+   ```bash
+   pnpm docker
    ```
    
-   This will install all necessary dependencies and prompt you to name your character, edit the ENV file, create a character file and then run the rest of the install loading the default character.
+## Docker Management Commands
 
-4. **Exit the bot**:
-   ```bash
-   exit
-   ```
+- Check running containers:
+  ```bash
+  docker ps
+  ```
 
-5. **Navigate into the Eliza directory**:
-    ```bash
-    cd eliza
-    echo "Loading NVM environment..."
-    export NVM_DIR="${XDG_CONFIG_HOME:-$HOME}/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    pnpm start --characters="characters/YOUR_CHARACTER.character.json"
-    ```
+- Remove Eliza container:
+  ```bash
+  docker rm /eliza
+  ```
 
-    This will start the Eliza chatbot using your customized character.
+- Restart with a different character:
+  ```bash
+  pnpm start --character="characters/YOUR_CHARACTER.character.json"
+  ```
 
-## Additional Notes
+## Customization
 
-- If you need to make further customizations, you can modify the `.env` file and the individual character JSON files located in `~/Eliza-Installer/eliza/agent/characters/`.
-- To stop the Eliza chatbot, press `Ctrl+C` in the terminal.
+- Modify the `.env` file to customize your bot's settings
+- Character files are located in the `characters/` directory
+- Create new character files by copying and modifying existing ones
 
 ## Troubleshooting
 
-- If you encounter issues with `pnpm`, make sure all dependencies are installed correctly. You can install `pnpm` globally by running:
+- If Docker container fails to start, check logs:
   ```bash
-  npm install -g pnpm
+  docker logs eliza
   ```
-
-## Contributing
-
-Feel free to contribute to this project by opening issues or submitting pull requests to improve the Eliza chatbot or this installation guide.
+- For permission issues, ensure proper file ownership and permissions
+- For script formatting issues, run `dos2unix` on problematic files
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-### Key Sections in the `README.md`:
-- **Installation Instructions**: Clear, step-by-step guide for setting up the Eliza chatbot on a Debian-based WSL system.
-- **Customizing the Character**: Describes how to edit the `.env` configuration file and customize the character's JSON file.
-- **Starting the Chatbot**: A simple command to run the chatbot with a custom character.
-- **Troubleshooting**: Provides information about potential issues and how to resolve them.
